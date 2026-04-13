@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('client_property', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('property_id')->constrained()->cascadeOnDelete();
+
+            $table->enum('status', [
+                'interested',
+                'visited',
+                'negotiating',
+                'rejected'
+            ])->nullable();
+
+            $table->text('notes')->nullable();
+
+            $table->timestamps();
+
+            $table->unique(['client_id', 'property_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('client_property');
+    }
+};
