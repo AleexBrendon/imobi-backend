@@ -1,24 +1,37 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Document;
+
+use App\Services\DocumentService;
 use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
+    public function __construct(
+        protected DocumentService $service
+    ) {}
+
+    public function index()
+    {
+        return $this->service->list();
+    }
+
+    public function show($id)
+    {
+        return $this->service->find($id);
+    }
+
     public function store(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file',
-            'client_id' => 'required'
-        ]);
+        $document = $this->service->upload($request);
 
-        $path = $request->file('file')->store('documents');
+        return response()->json($document, 200);
+    }
 
-        return Document::create([
-            'client_id' => $request->client_id,
-            'file_path' => $path,
-            'type' => $request->file('file')->extension()
-        ]);
+    public function destroy($id)
+    {
+        $this->service->delete($id);
+
+        return response()->noContent();
     }
 }

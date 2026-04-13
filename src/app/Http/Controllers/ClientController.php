@@ -1,76 +1,60 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\Activity;
-use Illuminate\Support\Facades\DB;
-use App\Events\ClientCreated;
+use App\Services\ClientService;
+use Illuminate\Http\Request;
 
-class ClientService
+class ClientController extends Controller
 {
-    public function getAll()
+    protected $service;
+
+    public function __construct(ClientService $service)
     {
-        return Client::query()
-            ->latest()
-            ->paginate(10);
+        $this->service = $service;
     }
 
-    public function create(array $data): Client
+    public function index()
     {
-        return DB::transaction(function () use ($data) {
-
-            $client = Client::create($data);
-
-            event(new ClientCreated($client));
-
-            return $client;
-        });
+        return $this->service->getAll();
     }
 
-    public function update(Client $client, array $data): Client
+    public function store(Request $request)
     {
-        $client->update($data);
-
-        event(new ClientCreated($client));
-
-        return $client->refresh();
+        return $this->service->create($request->all());
     }
 
-    public function updateStatus(int $id, string $status): Client
+    public function show(Client $client)
     {
-        $client = Client::findOrFail($id);
-
-        $client->update([
-            'status' => $status
-        ]);
-
-        event(new ClientCreated($client));
-
-        return $client->refresh();
+        return $client;
     }
 
-    public function attachProperty(int $clientId, array $data): void
+    public function update(Request $request, Client $client)
     {
-        $client = Client::findOrFail($clientId);
-
-        $client->properties()->attach($data['property_id'], [
-            'status' => $data['status'] ?? null,
-            'notes' => $data['notes'] ?? null
-        ]);
-
-        event(new ClientCreated($client));
+        return $this->service->update($client, $request->all());
     }
 
-    public function updateProperty(int $clientId, int $propertyId, array $data): void
+    public function destroy(Client $client)
     {
-        $client = Client::findOrFail($clientId);
+        $client->delete();
+        return response()->noContent();
+    }
 
-        $client->properties()->updateExistingPivot($propertyId, [
-            'status' => $data['status'] ?? null,
-            'notes' => $data['notes'] ?? null
-        ]);
+    public function updateStatus(Request $request, $id)
+    {
+        return $this->service->updateStatus($id, $request->status);
+    }
 
-        event(new ClientCreated($client));
+    public function attachProperty(Request $request, $id)
+    {
+        $this->service->attachProperty($id, $request->all());
+        return response()->noContent();
+    }
+
+    public function updateProperty(Request $request, $clientId, $propertyId)
+    {
+        $this->service->updateProperty($clientId, $propertyId, $request->all());
+        return response()->noContent();
     }
 }
