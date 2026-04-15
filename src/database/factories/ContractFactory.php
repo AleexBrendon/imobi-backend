@@ -15,7 +15,8 @@ class ContractFactory extends Factory
             'property_id' => Property::factory(),
             'title' => $this->faker->word(),
             'expires_at' => now()->addDays(30),
-            'status' => 'active'
+            'status' => 'active',
+            'company_id' => 1,
         ];
     }
 }

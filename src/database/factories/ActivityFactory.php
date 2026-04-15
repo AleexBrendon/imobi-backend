@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Client;
+use App\Models\Company;
 
-class DocumentFactory extends Factory
+class ActivityFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'name' => fake()->word(),
-            'path' => 'documents/test.pdf',
-            'client_id' => \App\Models\Client::factory(),
+            'client_id' => Client::factory(),
+            'description' => $this->faker->sentence(),
             'company_id' => Company::factory(),
         ];
     }

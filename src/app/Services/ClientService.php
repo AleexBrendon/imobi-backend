@@ -4,60 +4,73 @@ namespace App\Services;
 
 use App\Models\Client;
 use App\Models\Activity;
-use Illuminate\Support\Facades\DB;
 
 class ClientService
 {
-    public function getAll()
+    public function getAll($companyId)
     {
-        return Client::query()
-            ->latest()
-            ->paginate(10);
+        return Client::where('company_id', $companyId)->get();
     }
 
-    public function create(array $data): Client
+    public function create(array $data)
     {
-        return DB::transaction(function () use ($data) {
+        $companyId = $data['company_id'] ?? 1;
 
-            $client = Client::create($data);
+        $client = Client::create($data);
 
-            Activity::create([
-                'description' => 'Cliente criado',
-                'user_id' => $data['user_id'],
-                'client_id' => $client->id
-            ]);
+        Activity::create([
+            'client_id' => $client->id,
+            'company_id' => $data['company_id'],
+            'user_id' => $data['user_id'],
+            'description' => 'Cliente criado'
+        ]);
 
-            return $client;
-        });
+        return $client;
     }
 
-    public function update(Client $client, array $data): Client
+    public function update(Client $client, array $data)
     {
         $client->update($data);
 
-        Activity::create([
-            'description' => 'Cliente atualizado',
-            'user_id' => $client->user_id,
-            'client_id' => $client->id
-        ]);
-
-        return $client->refresh();
+        return $client;
     }
 
-    public function updateStatus(int $id, string $status): Client
+    public function updateStatus($id, $status, $companyId = 1)
     {
-        $client = Client::findOrFail($id);
+        $client = Client::where('id', $id)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
 
-        $client->update([
-            'status' => $status
+        $client->update(['status' => $status]);
+
+        return $client;
+    }
+
+    public function attachProperty($clientId, array $data, $companyId)
+    {
+        $client = Client::where('id', $clientId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        $client->properties()->attach($data['property_id'], [
+            'status' => $data['status'] ?? null,
+            'notes' => $data['notes'] ?? null,
         ]);
 
-        Activity::create([
-            'description' => "Status alterado para {$status}",
-            'user_id' => $client->user_id,
-            'client_id' => $client->id
+        return true;
+    }
+
+    public function updateProperty($clientId, $propertyId, array $data, $companyId)
+    {
+        $client = Client::where('id', $clientId)
+            ->where('company_id', $companyId)
+            ->firstOrFail();
+
+        $client->properties()->updateExistingPivot($propertyId, [
+            'status' => $data['status'] ?? null,
+            'notes' => $data['notes'] ?? null,
         ]);
 
-        return $client->refresh();
+        return true;
     }
 }

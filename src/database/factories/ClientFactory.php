@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Client;
-use App\Models\User;
+use App\Models\Company;
 
 class ClientFactory extends Factory
 {
@@ -14,10 +14,11 @@ class ClientFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->safeEmail(),
+            'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'status' => 'prospect',
-            'user_id' => User::factory(),
+            'user_id' => \App\Models\User::factory(),
+            'company_id' => Company::factory(),
         ];
     }
 }

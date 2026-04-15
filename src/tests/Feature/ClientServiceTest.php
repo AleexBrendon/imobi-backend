@@ -24,12 +24,13 @@ class ClientServiceTest extends TestCase
 
     public function test_it_creates_a_client_and_activity()
     {
-        $user = User::factory()->create();
+        $user = $this->authenticate();
 
         $data = [
             'name' => 'João Teste',
             'email' => 'joao@test.com',
-            'user_id' => $user->id
+            'user_id' => $user->id,
+            'company_id' => $user->company_id
         ];
 
         $client = $this->service->create($data);
@@ -46,7 +47,9 @@ class ClientServiceTest extends TestCase
 
     public function test_it_updates_client()
     {
-        $client = Client::factory()->create();
+        $client = Client::factory()->create([
+            'company_id' => $this->authenticate()->company_id
+        ]);
 
         $this->service->update($client, [
             'name' => 'Novo Nome'
@@ -60,7 +63,9 @@ class ClientServiceTest extends TestCase
 
     public function test_it_updates_status()
     {
-        $client = Client::factory()->create();
+        $client = Client::factory()->create([
+            'company_id' => $this->authenticate()->company_id
+        ]);
 
         $this->service->updateStatus($client->id, 'closed');
 

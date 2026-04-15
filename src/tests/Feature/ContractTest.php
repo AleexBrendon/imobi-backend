@@ -6,6 +6,9 @@ use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Property;
 use App\Models\Contract;
+use Laravel\Sanctum\Sanctum;
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ContractTest extends TestCase
@@ -14,12 +17,19 @@ class ContractTest extends TestCase
 
     public function test_create_contract()
     {
-        $client = Client::factory()->create();
-        $property = Property::factory()->create();
-        
+        $user = $this->authenticate();
+
+        $client = Client::factory()->create([
+            'company_id' => $user->company_id
+        ]);
+
+        $property = Property::factory()->create([
+            'company_id' => $user->company_id
+        ]);
+
         $response = $this->postJson('/api/contracts', [
-            'client_id' => 1,
-            'property_id' => 1,
+            'client_id' => $client->id,
+            'property_id' => $property->id,
             'title' => 'Contrato Teste',
             'expires_at' => now()->addDays(30),
             'status' => 'active'
@@ -30,7 +40,11 @@ class ContractTest extends TestCase
 
     public function test_list_contracts()
     {
-        Contract::factory()->count(2)->create();
+        $user = $this->authenticate();
+
+        Contract::factory()->count(2)->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->getJson('/api/contracts');
 
@@ -39,7 +53,11 @@ class ContractTest extends TestCase
 
     public function test_update_contract()
     {
-        $contract = Contract::factory()->create();
+        $user = $this->authenticate();
+
+        $contract = Contract::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->putJson("/api/contracts/{$contract->id}", [
             'title' => 'Atualizado'
@@ -50,7 +68,11 @@ class ContractTest extends TestCase
 
     public function test_delete_contract()
     {
-        $contract = Contract::factory()->create();
+        $user = $this->authenticate();
+
+        $contract = Contract::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->deleteJson("/api/contracts/{$contract->id}");
 

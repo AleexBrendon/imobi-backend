@@ -16,7 +16,11 @@ class DocumentTest extends TestCase
     {
         Storage::fake('local');
 
-        $client = Client::factory()->create();
+        $user = $this->authenticate();
+
+        $client = Client::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $file = UploadedFile::fake()->create('doc.pdf', 100);
 
@@ -30,6 +34,8 @@ class DocumentTest extends TestCase
 
     public function test_list_documents()
     {
+        $this->authenticate();
+
         $response = $this->getJson('/api/documents');
 
         $response->assertStatus(200);
@@ -39,7 +45,11 @@ class DocumentTest extends TestCase
     {
         Storage::fake('local');
 
-        $client = Client::factory()->create();
+        $user = $this->authenticate();
+
+        $client = Client::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $file = UploadedFile::fake()->create('doc.pdf', 100);
 

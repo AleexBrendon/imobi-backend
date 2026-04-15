@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use App\Models\Activity;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,6 +17,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'company_id',
     ];
 
     protected $hidden = [
@@ -37,4 +38,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isFuncionario()
+    {
+        return $this->role === 'funcionario';
+    }
+
+    public function isUsuario()
+    {
+        return $this->role === 'usuario';
+    }
+    
 }

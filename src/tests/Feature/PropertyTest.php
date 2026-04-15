@@ -13,7 +13,7 @@ class PropertyTest extends TestCase
 
     public function test_create_property()
     {
-        $user = User::factory()->create();
+        $user = $this->authenticate();
 
         $response = $this->postJson('/api/properties', [
             'title' => 'Casa',
@@ -29,7 +29,11 @@ class PropertyTest extends TestCase
 
     public function test_list_properties()
     {
-        Property::factory()->count(3)->create();
+        $user = $this->authenticate();
+
+        Property::factory()->count(3)->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->getJson('/api/properties');
 
@@ -38,7 +42,11 @@ class PropertyTest extends TestCase
 
     public function test_update_property()
     {
-        $property = Property::factory()->create();
+        $user = $this->authenticate();
+
+        $property = Property::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->putJson("/api/properties/{$property->id}", [
             'title' => 'Atualizado'
@@ -50,7 +58,11 @@ class PropertyTest extends TestCase
 
     public function test_delete_property()
     {
-        $property = Property::factory()->create();
+        $user = $this->authenticate();
+
+        $property = Property::factory()->create([
+            'company_id' => $user->company_id
+        ]);
 
         $response = $this->deleteJson("/api/properties/{$property->id}");
 

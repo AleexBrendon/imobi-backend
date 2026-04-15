@@ -11,7 +11,8 @@ class Activity extends Model
     protected $fillable = [
         'description',
         'user_id',
-        'client_id'
+        'client_id',
+        'company_id'
     ];
 
     public function user()

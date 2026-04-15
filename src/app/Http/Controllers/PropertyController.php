@@ -17,28 +17,57 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
-        $property = Property::create($request->all());
+        $data = $request->all();
+        $data['company_id'] = $request->user()->company_id;
+
+        $property = Property::create($data);
 
         return response()->json($property, 201);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Property::all(), 200);
+        return response()->json(
+            Property::where('company_id', $request->user()->company_id)->get(),
+            200
+        );
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        return $this->service->find($id);
+        $property = Property::findOrFail($id);
+
+        $this->authorizeProperty($property, $request);
+
+        return $property;
     }
 
     public function update(Request $request, $id)
     {
-        return $this->service->update($id, $request->all());
+        $property = Property::findOrFail($id);
+
+        $this->authorizeProperty($property, $request);
+
+        $property->update($request->all());
+
+        return response()->json($property);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        return $this->service->delete($id);
+        $property = Property::findOrFail($id);
+
+        $this->authorizeProperty($property, $request);
+
+        $property->delete();
+
+        return response()->noContent();
+    }
+
+    private function authorizeProperty($property, Request $request)
+    {
+        if ($property->company_id !== $request->user()->company_id) {
+            abort(403);
+        }
     }
 }

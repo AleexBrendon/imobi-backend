@@ -12,30 +12,56 @@ class ContractController extends Controller
         protected ContractService $service
     ) {}
 
-    public function index()
+    public function index( Request $request)
     {
-        return $this->service->list();
+        return Contract::where('company_id', $request->user()->company_id)->get();
     }
 
     public function store(Request $request)
     {
-        $contract = Contract::create($request->all());
+        $data = $request->all();
+        $data['company_id'] = $request->user()->company_id;
+
+        $contract = Contract::create($data);
 
         return response()->json($contract, 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        return $this->service->find($id);
+        $contract = Contract::findOrFail($id);
+
+        $this->authorizeContract($contract, $request);
+
+        return $contract;
     }
 
     public function update(Request $request, $id)
     {
-        return $this->service->update($id, $request->all());
+        $contract = Contract::findOrFail($id);
+
+        $this->authorizeContract($contract, $request);
+
+        $contract->update($request->all());
+
+        return response()->json($contract);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        return $this->service->delete($id);
+        $contract = Contract::findOrFail($id);
+
+        $this->authorizeContract($contract, $request);
+
+        $contract->delete();
+
+        return response()->noContent();
+    }
+
+    private function authorizeContract($contract, Request $request)
+    {
+        if ($contract->company_id !== $request->user()->company_id) {
+            abort(403);
+        }
     }
 }

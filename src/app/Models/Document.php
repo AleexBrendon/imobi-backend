@@ -9,7 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Document extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'file_path', 'type', 'status', 'expires_at'];
+    protected $fillable = [
+        'client_id',
+        'file_path',
+        'type',
+        'status',
+        'expires_at',
+        'company_id'
+    ];
 
     public function client()
     {

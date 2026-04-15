@@ -14,7 +14,8 @@ class Contract extends Model
         'property_id',
         'title',
         'expires_at',
-        'status'
+        'status',
+        'company_id'
     ];
 
     public function client()

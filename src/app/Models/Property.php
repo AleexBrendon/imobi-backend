@@ -10,7 +10,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Property extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'description', 'price', 'address', 'user_id'];
+    protected $fillable = [
+        'company_id',
+        'created_by',
+        'title',
+        'description',
+        'price',
+        'address'
+    ];
 
     public function clients()
     {
