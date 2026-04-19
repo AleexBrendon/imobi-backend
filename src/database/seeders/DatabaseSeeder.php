@@ -16,6 +16,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PropertySeeder::class,
             ClientSeeder::class,
+            CompanySeeder::class,
+            ClientPropertySeeder::class,
+            ActivitySeeder::class,
+            ContractSeeder::class,
+            DocumentSeeder::class,
         ]);
     }
 }
